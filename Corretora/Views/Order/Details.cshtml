@@ -1,0 +1,109 @@
+﻿@model Corretora.Models.Order
+
+@{
+    ViewBag.Title = "Ordem";
+
+    var Customer = (Corretora.Models.Customer)ViewBag.Customer;
+    var Asset = (Corretora.Models.Asset)ViewBag.Asset;
+
+    if (ViewBag.Mensagem != null)
+    {
+        <script>
+            alert('@ViewBag.Mensagem')
+        </script>
+    }
+}
+
+<br />
+<form action="/Order/SaveOrder" method="post" id="form">
+    <div class="form-horizontal">
+        <h3>Ordem</h3>
+        <hr />
+
+        <div class="form-group">
+            <input type="hidden" class="form-control" id="OrderID" name="OrderID" value="@Model.OrderID" />
+            <input type="hidden" class="form-control" id="Status" name="Status" value="@Model.Status" />
+        </div>
+
+        <div class="form-group">
+            <label for="CustomerName" class="control-label ">Cliente</label>
+            <input type="text" class="form-control" id="CustomerName" name="CustomerName" value="@Customer.Name" readonly />
+        </div>
+
+        <div class="row">
+            <div class="form-group col-md-3">
+                <label for="AssetName" class="control-label">Ativo</label>
+                <input type="text" class="form-control" id="AssetName" name="AssetName" value="@Asset.Name" readonly />
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="UnitPrice" class="control-label">Preço</label>
+                <input type="text" class="form-control" id="UnitPrice" name="UnitPrice" value="@Asset.UnitPrice.ToString("C")" readonly />
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="Quantity" class="control-label">Quantidade</label>
+                <input type="number" class="form-control" id="Quantity" name="Quantity" min="100" value="@Model.Quantity" step="100" />
+                @Html.ValidationMessageFor(o => o.Quantity, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="OrderValue" class="control-label">Valor Total</label>
+                <input type="text" class="form-control" id="OrderValue" name="OrderValue" value="@Model.OrderValue.ToString("C")" readonly />
+            </div>
+
+            <div class="form-group col-md-3">
+                <label for="Type" class="control-label">Tipo de Ordem</label>
+                <select class="form-control" id="Type" name="Type">
+                    <option value="1">Compra</option>
+                    <option value="2">Venda</option>
+                </select>
+                @Html.ValidationMessageFor(o => o.Type, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <br />
+        <div class="row">
+            <div class="form-group col-md-10">
+                <input type="submit" class="btn btn-primary float-right" id="btnEnviar" value="Salvar Ordem" />
+            </div>
+            <div class="form-group col-md-2">
+                <input type="submit" class="btn btn-danger float-right" id="btnCancelar" value="Cancelar" />
+            </div>
+        </div>
+
+    </div>
+</form>
+
+<div>
+    @Html.ActionLink("Lista de ordens", "Index")
+</div>
+
+<script>
+    function CalculaValor() {
+        $("#Quantity").bind('keyup mouseup', function () {
+            if ($("#Quantity").val() > 0) {
+                var preco = $("#UnitPrice").val().substring(3).replace(",", ".");
+                var valor = preco * $("#Quantity").val();
+                $("#OrderValue").val(valor.toLocaleString("pt-BR"));
+            }
+            else { $("#OrderValue").val(''); }
+        });
+    }
+
+    $(document).ready(
+        function () {
+            CalculaValor();
+
+            $("#Type").val($('option:contains("@Model.Type.ToString()")').val());
+
+            $('#btnCancelar').click(function () {
+                $('#Status').val("Cancelada");
+            });
+
+            $('#form').submit(function () {
+                $('#OrderValue').val($('#OrderValue').val().replace(".", ""));
+            });
+        }
+    );
+</script>

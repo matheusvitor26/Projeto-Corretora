@@ -1,0 +1,142 @@
+﻿@model Corretora.Models.Order
+
+@{
+    ViewBag.Title = "Ordem";
+
+    if (ViewBag.Mensagem != null)
+    {
+        <script>
+            alert('@ViewBag.Mensagem')
+        </script>
+    }
+}
+
+<br />
+<form action="/Order/SaveOrder" method="post" id="form">
+    <div class="form-horizontal">
+        <h3>Ordem</h3>
+        <hr />
+
+        <div class="form-group">
+            <label for="CustomerID" class="control-label ">Cliente</label>
+            <select class="form-control" id="CustomerID" name="CustomerID"></select>
+            @Html.ValidationMessageFor(o => o.CustomerID, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="row">
+            <div class="form-group col-md-3">
+                <label for="AssetID" class="control-label">Ativo</label>
+                <select class="form-control" id="AssetID" name="AssetID" onchange="PreenchePreco()"></select>
+                @Html.ValidationMessageFor(o => o.AssetID, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="UnitPrice" class="control-label">Preço</label>
+                <input type="number" class="form-control" id="UnitPrice" name="UnitPrice" readonly />
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="Quantity" class="control-label">Quantidade</label>
+                <input type="number" class="form-control" id="Quantity" name="Quantity" min="100" value="100" step="100" />
+                @Html.ValidationMessageFor(o => o.Quantity, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="OrderValue" class="control-label">Valor Total</label>
+                <input type="text" class="form-control" id="OrderValue" name="OrderValue" readonly />
+            </div>
+
+            <div class="form-group col-md-3">
+                <label for="Type" class="control-label">Tipo de Ordem</label>
+                <select class="form-control" id="Type" name="Type">
+                    <option value="1">Compra</option>
+                    <option value="2">Venda</option>
+                </select>
+                @Html.ValidationMessageFor(o => o.Type, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <br />
+        <div class="row">
+            <div class="form-group col-md-12">
+                <input type="submit" class="btn btn-primary float-right" id="btnEnviar" value="Enviar Ordem" />
+            </div>
+        </div>
+
+    </div>
+</form>
+
+<script>
+    function PreencherClientes() {
+        $.ajax({
+            dataType: "json",
+            type: "GET",
+            url: "@Url.Action("GetCustomers", "Customer")",
+            success: function (data) {
+                var options = '<option value=""></option>';
+                for (var i = 0; i < data.length; i++) {
+                    options += '<option value="' + data[i].CustomerID + '">' + data[i].Name + '</option>';
+                }
+                $('#CustomerID').html(options);
+            },
+            error: function (data) {
+                alert('Erro ao carregar clientes!');
+            },
+        });
+    }
+
+    function PreencherAtivos() {
+        $.ajax({
+            dataType: "json",
+            type: "GET",
+            url: "@Url.Action("GetAtivos", "Asset")",
+            success: function (data) {
+                var options = '<option value=""></option>';
+                for (var i = 0; i < data.length; i++) {
+                    options += '<option value="' + data[i].AssetID + '">' + data[i].Name + '</option>';
+                }
+                $('#AssetID').html(options);
+            },
+            error: function (data) {
+                alert('Erro ao carregar ativos!');
+            },
+        });
+    }
+
+    function PreenchePreco() {
+        $.ajax({
+            dataType: "json",
+            type: "GET",
+            url: "@Url.Action("GetPrice", "Asset")" + "?id=" + $("#AssetID").val(),
+            success: function (data) {
+                if ($("#Quantity").val() > 0) { $("#OrderValue").val((data * $("#Quantity").val()).toLocaleString("pt-BR")); }
+                else { $("#OrderValue").val(''); }
+                $("#UnitPrice").val(data);
+            },
+            error: function (data) {
+                alert('Erro ao carregar preço do ativo!');
+            },
+        });
+    }
+
+    function CalculaValor() {
+        $("#Quantity").bind('keyup mouseup', function () {
+            if ($("#Quantity").val() > 0 && $("#UnitPrice").val() != '') {
+                $("#OrderValue").val($("#UnitPrice").val() * $("#Quantity").val());
+            }
+            else { $("#OrderValue").val(''); }
+        });
+    }
+    
+    $(document).ready(
+        function () {
+            PreencherClientes();
+            PreencherAtivos();
+            CalculaValor();
+
+            $('#form').submit(function () {
+                $('#OrderValue').val($('#OrderValue').val().replace(".", ""));
+            });
+        }
+    );
+</script>

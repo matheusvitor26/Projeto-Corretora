@@ -1,0 +1,100 @@
+﻿@model Corretora.Models.Order
+
+@{
+    ViewBag.Title = "Ordem";
+
+    var Customer = (Corretora.Models.Customer)ViewBag.Customer;
+    var Asset = (Corretora.Models.Asset)ViewBag.Asset;
+
+    if (ViewBag.Mensagem != null)
+    {
+        <script>
+            alert('@ViewBag.Mensagem')
+        </script>
+    }
+}
+
+<br />
+<form action="/Order/ExecuteOrder" method="post" id="form">
+    <div class="form-horizontal">
+        <h3>Ordem</h3>
+        <hr />
+
+        <div class="form-group">
+            <input type="hidden" class="form-control" id="OrderID" name="OrderID" value="@Model.OrderID" />
+        </div>
+
+        <div class="form-group">
+            <label for="CustomerName" class="control-label ">Cliente</label>
+            <input type="text" class="form-control" id="CustomerName" name="CustomerName" value="@Customer.Name" readonly />
+        </div>
+
+        <div class="row">
+            <div class="form-group col-md-3">
+                <label for="AssetName" class="control-label">Ativo</label>
+                <input type="text" class="form-control" id="AssetName" name="AssetName" value="@Asset.Name" readonly />
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="UnitPrice" class="control-label">Preço</label>
+                <input type="text" class="form-control" id="UnitPrice" name="UnitPrice" value="@Asset.UnitPrice.ToString("C")" readonly />
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="Quantity" class="control-label">Quantidade</label>
+                <input type="number" class="form-control" id="Quantity" name="Quantity" value="@Model.Quantity" readonly />
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="OrderValue" class="control-label">Valor Total</label>
+                <input type="text" class="form-control" id="OrderValue" name="OrderValue" value="@Model.OrderValue.ToString("C")" readonly />
+            </div>
+
+            <div class="form-group col-md-3">
+                <label for="Type" class="control-label">Tipo de Ordem</label>
+                <input type="text" class="form-control" id="Type" name="Type" value="@Model.Type" readonly />
+            </div>
+        </div>
+
+        <br />
+        <div class="row">
+            <div class="form-group col-md-10">
+                <label for="ClienteID" class="control-label ">Executor</label>
+                <select class="form-control" id="ClienteID" name="ClienteID"></select>
+            </div>
+            <div class="form-group col-md-2">
+                <input type="submit" class="btn btn-success float-right mt-4" id="btnExecutar" value="Executar" />
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    @Html.ActionLink("Lista de ordens", "Index")
+</div>
+
+<script>
+    function PreencherClientes() {
+        $.ajax({
+            dataType: "json",
+            type: "GET",
+            url: "@Url.Action("GetCustomers", "Customer")",
+            success: function (data) {
+                var options = '<option value="0"></option>';
+                for (var i = 0; i < data.length; i++) {
+                    options += '<option value="' + data[i].CustomerID + '">' + data[i].Name + '</option>';
+                }
+                $('#ClienteID').html(options);
+            },
+            error: function (data) {
+                alert('Erro ao carregar clientes!');
+            },
+        });
+    }
+
+    $(document).ready(
+        function () {
+            PreencherClientes();
+        }
+    );
+</script>

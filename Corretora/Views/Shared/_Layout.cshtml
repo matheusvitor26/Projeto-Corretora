@@ -1,0 +1,33 @@
+﻿<html>
+<head>
+    <title>@ViewBag.Title - Corretora ASP.NET MVC</title>
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Styles.Render("~/Content/jquerycss")
+    @Styles.Render("~/Content/css")
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="collapse navbar-collapse">
+                @Html.ActionLink("Corretora", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                <div class="navbar-nav ">
+                    @Html.ActionLink("Clientes", "Index", "Customer", new { area = "" }, new { @class = "nav-item nav-link" })
+                    @Html.ActionLink("Ativos", "Index", "Asset", new { area = "" }, new { @class = "nav-item nav-link" })
+                    @Html.ActionLink("Ordens", "Index", "Order", new { area = "" }, new { @class = "nav-item nav-link" })
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="container body-container">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Todos os direitos reservados</p>
+        </footer>
+    </div>
+</body>
+</html>

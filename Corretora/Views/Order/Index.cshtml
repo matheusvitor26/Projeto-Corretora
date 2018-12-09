@@ -1,0 +1,143 @@
+﻿@model IEnumerable<Corretora.Models.Order>
+
+@{
+    ViewBag.Title = "Ordens";
+    var Ativos = (List<Corretora.Models.Asset>)ViewBag.Assets;
+    var Clientes = (List<Corretora.Models.Customer>)ViewBag.Customers;
+
+    if (ViewBag.Mensagem != null)
+    {
+        <script>
+            alert('@ViewBag.Mensagem')
+        </script>
+    }
+}
+
+<br />
+<h3>Ordens</h3>
+<br />
+
+<div class="row">
+    <div class="form-group col-md-4">
+        <label for="AssetID" class="control-label ">Ativo</label>
+        <select class="form-control" id="AssetID" name="AssetID">
+            <option value="0">Todos</option>
+            @foreach (var ativo in Ativos)
+            {
+                <option value="@ativo.AssetID">@ativo.Name</option>
+            }
+
+        </select>
+    </div>
+
+    <div class="form-group col-md-4">
+        <label for="CustomerID" class="control-label ">Cliente</label>
+        <select class="form-control" id="CustomerID" name="CustomerID">
+            <option value="0">Todos</option>
+            @foreach (var cliente in Clientes)
+            {
+                <option value="@cliente.CustomerID">@cliente.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group col-md-2">
+        @Html.ActionLink("Pesquisar", "Search", new { ativo = "x", cliente = "y" }, new { id = "btnSearch", @class = "btn btn-secondary mt-sm-4 ml-5 " })
+    </div>
+
+    <div class="form-group col-md-2">
+        <form action="/Order/Create" method="post">
+            <input type="submit" class="btn btn-primary mt-sm-4 ml-5 " name="btnNovo" value="Criar Nova" />
+        </form>
+    </div>
+</div>
+<br />
+
+
+@{
+    if (Model != null)
+    {
+        <div class="table-responsive-sm">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Date)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Type)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.AssetID)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.CustomerID)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Quantity)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.OrderValue)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Status)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Date</td>
+                            <td>@item.Type</td>
+
+                            @foreach (var ativo in Ativos)
+                            {
+                                if (ativo.AssetID == item.AssetID)
+                                {
+                                    <td>@ativo.Name</td>}
+                            }
+
+                            @foreach (var cliente in Clientes)
+                            {
+                                if (cliente.CustomerID == item.CustomerID)
+                                {
+                                    <td>@cliente.Name</td>}
+                            }
+
+                            <td>@item.Quantity</td>
+                            <td>@item.OrderValue.ToString("C")</td>
+
+                            @{
+                                if (item.Status == Corretora.Models.Status.Aberta)
+                                {
+                                    <td>@Html.ActionLink(item.Status.ToString(), "Details", new { id = item.OrderID }, new { @class = "btn btn-link" })</td>
+                                }
+                                else {  <td>@item.Status</td> }
+                                
+                                if (item.Status == Corretora.Models.Status.Aberta)
+                                {
+                                    <td>@Html.ActionLink("Executar", "Execute", new { id = item.OrderID }, new { @class = "btn btn-success btn-sm" })</td>
+                                }
+                                else { <td></td> }
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+<script>
+    $(document).ready(
+        function () {
+            $('#btnSearch').click(function () {
+                var x = $('select[name="AssetID"] option:selected').val();
+                var y = $('select[name="CustomerID"] option:selected').val();
+                this.href = this.href.replace("x", x).replace("y", y);
+            });
+        }
+    );
+</script>

@@ -1,0 +1,39 @@
+﻿@model IEnumerable<Corretora.Models.Customer>
+
+@{ 
+    ViewBag.Title = "Clientes";
+
+    var Accounts = (List<Corretora.Models.Account>)ViewBag.Accounts;
+}
+
+<br />
+<h3>Clientes</h3>
+<br />
+<div class="table-responsive-sm">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Saldo</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    @foreach (var conta in Accounts)
+                    {
+                        if(conta.CustomerID == item.CustomerID) { <td> @conta.Balance.ToString("C") </td> }
+                    }
+                    <td>@Html.ActionLink("Detalhes", "Details", new { id = item.CustomerID }, new { @class = "btn btn-primary btn-sm" })</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<form action="/Customer/Create" method="post">
+    <input type="submit" class="btn btn-primary" value="Novo Cliente" />
+</form>

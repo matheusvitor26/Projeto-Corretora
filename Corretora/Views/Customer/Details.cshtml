@@ -1,0 +1,110 @@
+﻿@model Corretora.Models.Customer
+
+@{ 
+    ViewBag.Title = "Cliente"; 
+    
+    var Ordens = (List<Corretora.Models.Order>)ViewBag.Orders;
+    var Ativos = (List<Corretora.Models.Asset>)ViewBag.Assets;
+
+}
+
+<form action="/Customer/Alter" method="post" onsubmit="return ConvertBalance()";>
+    <br />
+    <div class="form-horizontal">
+        <h3>Cliente</h3>
+        <hr />
+
+        @Html.HiddenFor(model => model.CustomerID)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="Balance" class="control-label">Saldo</label>
+            <input type="number" class="form-control" id="Balance" name="Balance" min="1" step="0.01" />
+        </div>
+
+        <div class="row col-md">
+            <div class="col-md-2">
+                <input type="submit" class="btn btn-success" value="Salvar" />
+            </div>
+
+            <div class="col-md-2">
+                @Html.ActionLink("Excluir", "Delete", new { id = @Model.CustomerID }, new { @class = "btn btn-danger" })
+            </div>
+        </div>
+    </div>
+</form>
+
+<br />
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Transação</th>
+                <th>Saldo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ordem in Ordens)
+            {
+                <tr>
+                    <td>@ordem.Date</td>
+                    <td>Ordem @ordem.Status - @ordem.Quantity @Ativos.Where(ativo => ativo.AssetID == ordem.AssetID).FirstOrDefault().Name</td>
+
+                    @if (ordem.Status == Corretora.Models.Status.Executada)
+                    {
+                        if (ordem.Type == Corretora.Models.Type.Venda) { <td>+ @ordem.OrderValue.ToString("C")</td> }
+                        else { <td>- @ordem.OrderValue.ToString("C")</td> }
+                    }
+                    else { <td></td> }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<br />
+<div>
+    @Html.ActionLink("Lista de clientes", "Index")
+</div>
+
+<script>
+    function PreenchePreco() {
+        $.ajax({
+            dataType: "json",
+            type: "GET",
+            url: "@Url.Action("GetBalance", "Account")" + "?id=" + @Model.CustomerID,
+            success: function (data) {
+                $("#Balance").val(data);
+            },
+            error: function (data) {
+                alert('Erro ao carregar saldo!');
+            },
+        });
+    }
+
+    function ConvertBalance() {
+        if ($('#Balance').val() != '') {
+            if ($('#Balance').val().lastIndexOf('.') != -1) {
+                if ($('#Balance').val().substr($('#Balance').val().lastIndexOf('.') + 1).length == 1) {
+                    $('#Balance').val($('#Balance').val().concat("0"));
+                }
+                $('#Balance').val($('#Balance').val().replace(".", ""))
+            }
+            else { $('#Balance').val($('#Balance').val().concat("00")); }
+        }
+        return true;
+    }
+
+    $(document).ready(
+        function () {
+            PreenchePreco();
+        });
+</script>

@@ -1,0 +1,35 @@
+﻿@model List<Corretora.Models.Asset>
+
+@{ ViewBag.Title = "Ativos"; }
+
+<br />
+<h3>Ativos</h3>
+
+<div class="table-responsive-sm">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Nome</th>
+                <th>Preço</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Description</td>
+                    <td>@item.UnitPrice.ToString("C")</td>
+                    <td>@Html.ActionLink("Excluir", "Delete", new {id = @item.AssetID }, new { @class="btn btn-danger btn-sm"} )</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<br />
+<form action="/Asset/Create" method="post">
+    <input type="submit" class="btn btn-primary" value="Novo ativo" />
+</form>

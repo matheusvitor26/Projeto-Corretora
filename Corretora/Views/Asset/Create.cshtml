@@ -1,0 +1,65 @@
+﻿@model Corretora.Models.Asset
+
+@{    
+    ViewBag.Title = "Ativo";
+
+    if (ViewBag.Mensagem != null)
+    {
+        <script>
+            alert("@ViewBag.Mensagem")
+        </script>
+    }
+}
+
+<form action="/Asset/Save" method="post" onsubmit="return ConvertPrice();">
+    <br />
+    <div class="form-horizontal">
+        <h3>Ativo</h3>
+        <hr />
+
+        <div class="form-group col-md-8">
+            <label for="Description" class="control-label">Nome</label>
+            <input type="text" class="form-control" id="Description" name="Description" />
+            @Html.ValidationMessageFor(a => a.Description, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="Name" class="control-label">Código do Ativo</label>
+            <input type="text" class="form-control text-uppercase" id="Name" name="Name" />
+            @Html.ValidationMessageFor(a => a.Name, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="UnitPrice" class="control-label">Preço</label>
+            <input type="number" class="form-control" id="UnitPrice" name="UnitPrice" min="0" step="0.01" />
+            @Html.ValidationMessageFor(a => a.UnitPrice, "", new { @class = "text-danger" })
+        </div>
+
+        <br />
+        <div class="form-group col-md-4">
+            <input type="submit" class="btn btn-primary form-group" value="Cadastrar ativo" />
+        </div>
+    </div>
+</form>
+
+<br />
+<div>
+    @Html.ActionLink("Lista de ativos", "Index")
+</div>
+
+<script>
+    function ConvertPrice() {
+        if ($('#UnitPrice').val() != '') {
+            if ($('#UnitPrice').val().lastIndexOf('.') != -1) {
+                if ($('#UnitPrice').val().substr($('#UnitPrice').val().lastIndexOf('.') + 1).length == 1) {
+                    $('#UnitPrice').val($('#UnitPrice').val().concat("0"));
+                }
+                $('#UnitPrice').val($('#UnitPrice').val().replace(".", ""))
+            }
+            else { $('#UnitPrice').val($('#UnitPrice').val().concat("00")); }
+        }
+        return true;
+    }
+
+    $(document).ready(function () {});
+</script>
